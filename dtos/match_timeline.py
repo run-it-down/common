@@ -10,43 +10,43 @@ class MatchPositionDto:
 
 @dataclass
 class MatchEventDto:
-    laneType: str
-    skillSlot: int
-    ascendedType: str
-    creatorId: int
-    afterId: int
-    eventType: str
+    lane_type: str
+    skill_slot: int
+    ascended_type: str
+    creator_id: int
+    after_id: int
+    event_type: str
     type: str
-    levelUpType: str
-    wardType: str
-    participantId: int
-    towerType: str
-    itemId: int
-    beforeId: int
-    pointCaptured: str
-    monsterType: str
-    monsterSubType: str
-    teamId: int
+    level_up_type: str
+    ward_type: str
+    participant_id: int
+    tower_type: str
+    item_id: int
+    before_id: int
+    point_captured: str
+    monster_type: str
+    monster_sub_type: str
+    team_td: int
     position: MatchPositionDto
-    killerId: int
+    killer_id: int
     timestamp: int
-    assistingParticipantIds: typing.List[int]
-    buildingType: str
-    victimId: int
+    assisting_participant_ids: typing.List[int]
+    building_type: str
+    victim_id: int
 
 
 @dataclass
 class MatchParticipantFrameDto:
-    participantId: int
-    minionsKilled: int
-    teamScore: int
-    dominionScore: int
-    totalGold: int
+    participant_id: int
+    minions_killed: int
+    team_score: int
+    dominion_score: int
+    total_gold: int
     level: int
     xp: int
-    currentGold: int
+    current_gold: int
     position: MatchPositionDto
-    jungleMinionsKilled: int
+    jungle_minions_killed: int
 
 
 @dataclass
