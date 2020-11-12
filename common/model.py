@@ -201,3 +201,53 @@ class Match:
     game_type: str
     teams: typing.List[Team]
     participants: typing.List[Participant]
+
+
+@dataclasses.dataclass
+class ParticipantFrame:
+    participantId: str
+    gameId: str
+    minionsKilled: int
+    teamScore: int
+    dominionScore: int
+    totalGold: int
+    level: int
+    xp: int
+    currentGold: int
+    position: tuple
+    jungleMinionsKilled: int
+    timestamp: int
+
+
+@dataclasses.dataclass
+class EventFrame:
+    participantId: str
+    gameId: str
+    teamId: str
+    laneType: str
+    skillSlot: int
+    ascendedType: str
+    creatorId: int
+    afterId: int
+    eventType: str
+    type: str
+    levelUpType: str
+    wardType: str
+    towerType: str
+    itemId: int
+    beforeId: int
+    pointCaptured: str
+    monsterType: str
+    monsterSubType: str
+    position: tuple
+    killerId: str
+    assistingParticipantIds: str
+    buildingType: str
+    victimId: str
+    timestamp: int
+
+
+@dataclasses.dataclass
+class MatchTimeline:
+    participant_frames: typing.List[ParticipantFrame]
+    event_frames: typing.List[EventFrame]
