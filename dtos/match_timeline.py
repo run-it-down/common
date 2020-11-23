@@ -26,7 +26,7 @@ class MatchEventDto:
     point_captured: str
     monster_type: str
     monster_sub_type: str
-    team_td: int
+    team_id: int
     position: MatchPositionDto
     killer_id: int
     timestamp: int
