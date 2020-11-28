@@ -20,6 +20,15 @@ def get_connection(
         host=os.getenv('DBHOST'),
         port=int(os.getenv('DBPORT')),
 ):
+    """
+    Returns database connection, if not specified configuration is taken from environment.
+    :param database:
+    :param user:
+    :param password:
+    :param host:
+    :param port:
+    :return:
+    """
     return psycopg2.connect(
         database=database,
         user=user,
@@ -30,6 +39,11 @@ def get_connection(
 
 
 def kill_connection(conn):
+    """
+    Closes given connection.
+    :param conn:
+    :return:
+    """
     try:
         conn.close()
     except psycopg2.Error:
@@ -42,6 +56,16 @@ def _execute(
     values: tuple,
     print_exception: bool = True,
 ):
+    """
+    Executes given prepared statement (with given values) on specified connection, therefore a cursor
+    is created. In case of failure a rollback is executed and committed. Occurred error are printable,
+    default is true.
+    :param conn:
+    :param statement:
+    :param values:
+    :param print_exception:
+    :return:
+    """
     cur = conn.cursor()
     try:
         cur.execute(statement, values)
