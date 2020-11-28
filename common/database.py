@@ -4,7 +4,13 @@ import os
 import psycopg2
 import typing
 
-import model
+from common import model
+
+
+# database general
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
 
 
 def get_connection(
@@ -47,11 +53,31 @@ def _execute(
     return cur
 
 
+def _set_timestamp(target):
+    """
+    Sets target's field "timestamp" to "now()" so if inserted to database the timestamp function
+    from postgres is used.
+    :param target:
+    :return:
+    """
+    # necessary since we have to differentiate between timestamp on runtime and timestamp in database
+    target.timestamp = 'now()'
+    return target
+
+
+# insert statements
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
+
+
 def insert_summoner(conn,
                     summoner: model.Summoner,
                     ):
     statement = "INSERT INTO summoners " \
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, now())"
+
+    summoner = _set_timestamp(summoner)
     values = dataclasses.astuple(summoner)
 
     _execute(
@@ -64,13 +90,29 @@ def insert_summoner(conn,
     conn.commit()
 
 
+def insert_match(conn,
+                 match: model.Match,
+                 ):
+    statement = "INSERT INTO matches " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,)"
+    values = dataclasses.astuple(match)
+
+    _execute(
+        conn=conn,
+        statement=statement,
+        values=values,
+        print_exception=False,
+    )
+
+    conn.commit()
+
+
 def insert_summoner_match(conn,
-                          game_id: int,
-                          account_id: str,
+                          summoner_match: model.SummonerMatch
                           ):
     statement = "INSERT INTO summoner_matches " \
                 "VALUES (%s, %s)"
-    values = (game_id, account_id)
+    values = dataclasses.astuple(summoner_match)
 
     _execute(
         conn=conn,
@@ -86,8 +128,26 @@ def insert_team(conn,
                 team: model.Team
                 ):
     statement = "INSERT INTO teams " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     values = dataclasses.astuple(team)
+
+    _execute(
+        conn=conn,
+        statement=statement,
+        values=values,
+        print_exception=True,
+    )
+
+    conn.commit()
+
+
+def insert_champion(conn,
+                    champion: model.Champion
+                    ):
+    statement = "INSERT INTO champions " \
+                "VALUES (%s, %s, %s)"
+
+    values = dataclasses.astuple(champion)
 
     _execute(
         conn=conn,
@@ -106,13 +166,13 @@ def insert_timeline(conn,
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
     values = (
         timeline.timeline_id,
-        json.dumps(timeline.creepsPerMinDeltas),
-        json.dumps(timeline.xpPerMinDeltas),
-        json.dumps(timeline.goldPerMinDeltas),
-        json.dumps(timeline.csDiffPerMinDeltas),
-        json.dumps(timeline.xpDiffPerMinDeltas),
-        json.dumps(timeline.damageTakenPerMinDeltas),
-        json.dumps(timeline.damageTakenDiffPerMinDeltas),
+        json.dumps(timeline.creeps_per_min_deltas),
+        json.dumps(timeline.xp_per_min_deltas),
+        json.dumps(timeline.gold_per_min_deltas),
+        json.dumps(timeline.cs_diff_per_min_deltas),
+        json.dumps(timeline.xp_diff_per_min_deltas),
+        json.dumps(timeline.damage_taken_per_min_deltas),
+        json.dumps(timeline.damage_taken_diff_per_min_deltas)
     )
 
     _execute(
@@ -129,7 +189,7 @@ def insert_stat(conn,
                 stat: model.Stat
                 ):
     statement = "INSERT INTO stats " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     values = dataclasses.astuple(stat)
 
     _execute(
@@ -146,17 +206,9 @@ def insert_participant(conn,
                        participant: model.Participant
                        ):
     statement = "INSERT INTO participants " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-    values = (
-        participant.participant_id,
-        participant.team_id,
-        participant.account_id,
-        participant.champion_id,
-        participant.spell1_id,
-        participant.spell2_id,
-        participant.stat.stat_id,
-        participant.timeline.timeline_id,
-    )
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+    values = dataclasses.astuple(participant)
 
     _execute(
         conn=conn,
@@ -168,42 +220,10 @@ def insert_participant(conn,
     conn.commit()
 
 
-def insert_match(conn,
-                 match: model.Match
-                 ):
-    statement = "INSERT INTO matches " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-
-    teams: typing.List[str] = []
-    for team in match.teams:
-        teams.append(team.team_id)
-
-    participants: typing.List[str] = []
-    for participant in match.participants:
-        participants.append(participant.participant_id)
-
-    values = (match.game_id,
-              match.platform_id,
-              match.game_creation,
-              match.game_duration,
-              match.queue_id,
-              match.map_id,
-              match.season_id,
-              match.game_version,
-              match.game_mode,
-              match.game_type,
-              teams,
-              participants
-              )
-
-    _execute(
-        conn=conn,
-        statement=statement,
-        values=values,
-        print_exception=True,
-    )
-
-    conn.commit()
+# select statements
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
 
 
 def select_count_summoner_match(conn,
