@@ -16,7 +16,7 @@ class Summoner:
 
 @dataclasses.dataclass
 class Match:
-    game_id: str
+    game_id: int
     platform_id: str
     game_creation: int
     game_duration: int
