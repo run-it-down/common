@@ -63,13 +63,13 @@ class Champion:
 @dataclasses.dataclass
 class Timeline:
     timeline_id: str
-    creeps_per_min_deltas: dict
-    xp_per_min_deltas: dict
-    gold_per_min_deltas: dict
-    cs_diff_per_min_deltas: dict
-    xp_diff_per_min_deltas: dict
-    damage_taken_per_min_deltas: dict
-    damage_taken_diff_per_min_deltas: dict
+    creeps_per_min_deltas: typing.Mapping[str, float]
+    xp_per_min_deltas: typing.Mapping[str, float]
+    gold_per_min_deltas: typing.Mapping[str, float]
+    cs_diff_per_min_deltas: typing.Mapping[str, float]
+    xp_diff_per_min_deltas: typing.Mapping[str, float]
+    damage_taken_per_min_deltas: typing.Mapping[str, float]
+    damage_taken_diff_per_min_deltas: typing.Mapping[str, float]
 
 
 @dataclasses.dataclass
