@@ -5,46 +5,38 @@ import typing
 @dataclasses.dataclass
 class Summoner:
     account_id: str
+    sumoner_id: str
+    puuid: str
+    name: str
+    summoner_level: int
     profile_icon_id: int
     revision_date: int
-    name: str
-    id: str
-    puuid: str
-    summoner_level: int
+
+
+@dataclasses.dataclass
+class Match:
+    game_id: str
+    platform_id: str
+    game_creation: int
+    game_duration: int
+    queue_id: int
+    map_id: int
+    season_id: int
+    game_version: str
+    game_mode: str
+    game_type: str
 
 
 @dataclasses.dataclass
 class MatchReference:
     game_id: int
-    role: str
-    season: int
-    platform_id: str
-    champion: int
-    queue: int
-    lane: str
-    timestamp: int
-
-
-@dataclasses.dataclass
-class Matchlist:
-    start_index: int
-    #  	There is a known issue that this field doesn't correctly return the total number of games
-    #  	that match the parameters of the request. Please paginate using beginIndex until you reach
-    #  	the end of a player's matchlist.
-    # total_games: int
-    end_index: int
-    match_references: typing.List[MatchReference]
-
-
-@dataclasses.dataclass
-class Champion:
-    id: int
-    name: str
+    account_id: str
 
 
 @dataclasses.dataclass
 class Team:
     team_id: str
+    game_id: str
     win: str
     first_blood: int
     first_tower: int
@@ -56,22 +48,27 @@ class Team:
     inhibitor_kills: int
     baron_kills: int
     dragon_kills: int
-    vilemaw_kills: int
     rift_herald_kills: int
-    dominion_victory_score: int
     bans: typing.List[int]
+
+
+@dataclasses.dataclass
+class Champion:
+    champion_id: int
+    name: str
+    classes: typing.List[str]
 
 
 @dataclasses.dataclass
 class Timeline:
     timeline_id: str
-    creepsPerMinDeltas: dict
-    xpPerMinDeltas: dict
-    goldPerMinDeltas: dict
-    csDiffPerMinDeltas: dict
-    xpDiffPerMinDeltas: dict
-    damageTakenPerMinDeltas: dict
-    damageTakenDiffPerMinDeltas: dict
+    creeps_per_min_deltas: dict
+    xp_per_min_deltas: dict
+    gold_per_min_deltas: dict
+    cs_diff_per_min_deltas: dict
+    xp_diff_per_min_deltas: dict
+    damage_taken_per_min_deltas: dict
+    damage_taken_diff_per_min_deltas: dict
 
 
 @dataclasses.dataclass
@@ -90,7 +87,6 @@ class Stat:
     tripleKills: int
     quadraKills: int
     pentaKills: int
-    unrealKills: int
     totalDamageDealt: int
     magicDamageDealt: int
     physicalDamageDealt: int
@@ -178,76 +174,51 @@ class Stat:
 @dataclasses.dataclass
 class Participant:
     participant_id: str
-    team_id: str
+    game_id: str
     account_id: str
     champion_id: int
+    stat_id: str
+    timeline_id: str
     spell1_id: int
     spell2_id: int
-    stat: Stat
-    timeline: Timeline
-
-
-@dataclasses.dataclass
-class Match:
-    game_id: str
-    platform_id: str
-    game_creation: int
-    game_duration: int
-    queue_id: int
-    map_id: int
-    season_id: int
-    game_version: str
-    game_mode: str
-    game_type: str
-    teams: typing.List[Team]
-    participants: typing.List[Participant]
+    role: str
+    lane: str
 
 
 @dataclasses.dataclass
 class ParticipantFrame:
-    participantId: str
-    gameId: str
-    minionsKilled: int
-    teamScore: int
-    dominionScore: int
-    totalGold: int
+    participant_id: str
+    timestamp: int
+    minions_killed: int
+    team_score: int
+    total_gold: int
     level: int
     xp: int
-    currentGold: int
+    current_gold: int
     position: tuple
-    jungleMinionsKilled: int
-    timestamp: int
+    jungle_minions_killed: int
 
 
 @dataclasses.dataclass
-class EventFrame:
-    participantId: str
-    gameId: str
-    teamId: str
-    laneType: str
-    skillSlot: int
-    ascendedType: str
-    creatorId: int
-    afterId: int
-    eventType: str
+class Event:
+    participant_id: str
+    timestamp: int
+    lane_type: str
+    skill_slot: int
+    ascended_type: str
+    creator_id: int
+    after_id: int
+    event_type: str
     type: str
-    levelUpType: str
-    wardType: str
-    towerType: str
-    itemId: int
-    beforeId: int
-    pointCaptured: str
-    monsterType: str
-    monsterSubType: str
+    level_up_type: str
+    ward_type: str
+    tower_type: str
+    item_id: int
+    before_id: int
+    monster_type: str
+    monster_sub_type: str
     position: tuple
-    killerId: str
-    assistingParticipantIds: str
-    buildingType: str
-    victimId: str
-    timestamp: int
-
-
-@dataclasses.dataclass
-class MatchTimeline:
-    participant_frames: typing.List[ParticipantFrame]
-    event_frames: typing.List[EventFrame]
+    killer_id: str
+    assisting_participant_ids: str
+    building_type: str
+    victim_id: str
