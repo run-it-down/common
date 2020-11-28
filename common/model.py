@@ -5,7 +5,7 @@ import typing
 @dataclasses.dataclass
 class Summoner:
     account_id: str
-    sumoner_id: str
+    summoner_id: str
     puuid: str
     name: str
     summoner_level: int
@@ -29,7 +29,7 @@ class Match:
 
 
 @dataclasses.dataclass
-class MatchReference:
+class SummonerMatch:
     game_id: int
     account_id: str
 
