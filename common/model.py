@@ -36,8 +36,8 @@ class SummonerMatch:
 
 @dataclasses.dataclass
 class Team:
-    team_id: str
-    game_id: str
+    team_id: int
+    game_id: int
     win: str
     first_blood: int
     first_tower: int
