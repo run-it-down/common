@@ -11,6 +11,7 @@ class Summoner:
     summoner_level: int
     profile_icon_id: int
     revision_date: int
+    timestamp: str
 
 
 @dataclasses.dataclass
