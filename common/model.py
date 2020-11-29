@@ -220,6 +220,6 @@ class Event:
     monster_sub_type: str
     position: tuple
     killer_id: str
-    assisting_participant_ids: str
+    assisting_participant_ids: typing.List[str]
     building_type: str
     victim_id: str
