@@ -30,8 +30,8 @@ class Match:
 
 @dataclasses.dataclass
 class SummonerMatch:
-    game_id: int
     account_id: str
+    game_id: int
 
 
 @dataclasses.dataclass
@@ -131,16 +131,6 @@ class Stat:
     objective_player_score: int
     total_player_score: int
     total_score_rank: int
-    player_score0: int
-    player_score1: int
-    player_score2: int
-    player_score3: int
-    player_score4: int
-    player_score5: int
-    player_score6: int
-    player_score7: int
-    player_score8: int
-    player_score9: int
     perk0: int
     perk0_var1: int
     perk0_var2: int
@@ -174,7 +164,7 @@ class Stat:
 
 @dataclasses.dataclass
 class Participant:
-    participant_id: int
+    participant_id: str
     game_id: int
     account_id: str
     champion_id: int
