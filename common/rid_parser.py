@@ -2,12 +2,11 @@ from datetime import datetime
 import typing
 from uuid import uuid4
 
-
-from common import model
-from common.dtos import summoner
-from common.dtos import match
-from common.dtos import matchlist
-from common.dtos import match_timeline
+import model
+from dtos import summoner
+from dtos import match
+from dtos import matchlist
+from dtos import match_timeline
 
 
 def parse_summoner(summoner_dto: summoner.SummonerDto
@@ -41,7 +40,7 @@ def parse_match(match_dto: match.MatchDto
 
 
 def parse_summoner_matches(matchlist_dto: matchlist.MatchlistDto,
-                           account_id: summoner.SummonerDto.account_id,
+                           account_id: str,
                            ) -> typing.List[model.SummonerMatch]:
     matches = []
     for match in matchlist_dto.matches:
@@ -79,8 +78,29 @@ def parse_teams(match: match.MatchDto,
     return teams
 
 
-def parse_timeline(match: match.MatchDto,
-                   ) -> typing.List[model.Timeline]:
+def parse_team(team_dto: match.TeamStatsDto,
+               game_id: int) -> model.Team:
+    return model.Team(
+        team_id=team_dto.team_id,
+        game_id=game_id,
+        win=team_dto.win,
+        first_blood=team_dto.first_blood,
+        first_tower=team_dto.first_tower,
+        first_inhibitor=team_dto.first_inhibitor,
+        first_baron=team_dto.first_baron,
+        first_dragon=team_dto.first_dragon,
+        first_rift_herald=team_dto.first_rift_herald,
+        tower_kills=team_dto.tower_kills,
+        inhibitor_kills=team_dto.inhibitor_kills,
+        baron_kills=team_dto.baron_kills,
+        dragon_kills=team_dto.dragon_kills,
+        rift_herald_kills=team_dto.rift_herald_kills,
+        bans=[ban.champion_id for ban in team_dto.bans],
+    )
+
+
+def parse_timelines(match: match.MatchDto,
+                    ) -> typing.List[model.Timeline]:
     timelines = []
     for participant in match.participants:
         timelines.append(model.Timeline(
@@ -95,6 +115,19 @@ def parse_timeline(match: match.MatchDto,
         ))
 
     return timelines
+
+
+def parse_timeline(timeline_dto: match.ParticipantTimelineDto) -> model.Timeline:
+    return model.Timeline(
+        timeline_id=str(uuid4()),
+        creeps_per_min_deltas=timeline_dto.cs_diff_per_min_deltas,
+        xp_per_min_deltas=timeline_dto.cs_diff_per_min_deltas,
+        gold_per_min_deltas=timeline_dto.cs_diff_per_min_deltas,
+        cs_diff_per_min_deltas=timeline_dto.cs_diff_per_min_deltas,
+        xp_diff_per_min_deltas=timeline_dto.cs_diff_per_min_deltas,
+        damage_taken_per_min_deltas=timeline_dto.cs_diff_per_min_deltas,
+        damage_taken_diff_per_min_deltas=timeline_dto.cs_diff_per_min_deltas,
+    )
 
 
 def parse_stats(stat: match.ParticipantStatsDto
@@ -157,16 +190,6 @@ def parse_stats(stat: match.ParticipantStatsDto
         objective_player_score=stat.objective_player_score,
         total_player_score=stat.total_player_score,
         total_score_rank=stat.total_score_rank,
-        player_score0=stat.player_score0,
-        player_score1=stat.player_score1,
-        player_score2=stat.player_score2,
-        player_score3=stat.player_score3,
-        player_score4=stat.player_score4,
-        player_score5=stat.player_score5,
-        player_score6=stat.player_score6,
-        player_score7=stat.player_score7,
-        player_score8=stat.player_score8,
-        player_score9=stat.player_score9,
         perk0=stat.perk0,
         perk0_var1=stat.perk0_var1,
         perk0_var2=stat.perk0_var2,
@@ -215,7 +238,7 @@ def parse_participants(match_dto: match.MatchDto,
                 identity = participant_identity
 
         participants.append(model.Participant(
-            participant_id=participant.participant_id,
+            participant_id=str(uuid4()),
             game_id=match_dto.game_id,
             account_id=identity.player.account_id,
             champion_id=participant.champion_id,
@@ -228,6 +251,28 @@ def parse_participants(match_dto: match.MatchDto,
         ))
 
     return participants
+
+
+def parse_participant(participant_dto: match.ParticipantDto,
+                      game_id: int,
+                      account_id: str,
+                      stat_id: str,
+                      timeline_id: str,
+                      role: str,
+                      lane: str
+                      ) -> model.Participant:
+    return model.Participant(
+        participant_id=str(uuid4()),
+        game_id=game_id,
+        account_id=account_id,
+        champion_id=participant_dto.champion_id,
+        stat_id=stat_id,
+        timeline_id=timeline_id,
+        spell1_id=participant_dto.spell1_id,
+        spell2_id=participant_dto.spell2_id,
+        role=role,
+        lane=lane,
+    )
 
 
 def parse_match_timeline_frames(match_timeline: match_timeline.MatchTimelineDto,
@@ -246,15 +291,16 @@ def parse_match_timeline_frames(match_timeline: match_timeline.MatchTimelineDto,
                 level=participant_frame_dto.level,
                 xp=participant_frame_dto.xp,
                 current_gold=participant_frame_dto.current_gold,
-                position=({participant_frame_dto.position.x},{participant_frame_dto.position.y}),
+                position=({participant_frame_dto.position.x}, {participant_frame_dto.position.y}),
                 jungle_minions_killed=participant_frame_dto.jungle_minions_killed,
             ))
 
         for event_dto in frame.events:
             assisting_participant_ids = []
             for assisting_participant_id in event_dto.assisting_participant_ids:
-                assisting_participant_ids.append(mapping_participant_ids_to_match_participant_ids[assisting_participant_id])
-                
+                assisting_participant_ids.append(
+                    mapping_participant_ids_to_match_participant_ids[assisting_participant_id])
+
             events.append(model.Event(
                 participant_id=mapping_participant_ids_to_match_participant_ids[event_dto.participant_id],
                 timestamp=frame.timestamp,
@@ -280,3 +326,60 @@ def parse_match_timeline_frames(match_timeline: match_timeline.MatchTimelineDto,
             ))
 
     return participant_frames
+
+
+def parse_event(event_dto: match_timeline.MatchEventDto,
+                map: dict) -> model.Event:
+    # There is an edge case for WARD_PLACED and WARD_KILLED. participantId would be NULL in these cases, which is why
+    # we set participantId to the according related ID (either creator or killer). If other edge cases occur, set 0
+    # instead.
+    participant_id = event_dto.participant_id
+    if participant_id is None:
+        if event_dto.creator_id:
+            participant_id = map[event_dto.creator_id]
+        elif event_dto.killer_id:
+            participant_id = map[event_dto.killer_id]
+        else:
+            participant_id = 0
+    else:
+        participant_id = map[event_dto.participant_id]
+    return model.Event(
+        participant_id=participant_id,
+        timestamp=event_dto.timestamp,
+        lane_type=event_dto.lane_type,
+        skill_slot=event_dto.skill_slot,
+        ascended_type=event_dto.ascended_type,
+        creator_id=event_dto.creator_id,
+        after_id=event_dto.after_id,
+        event_type=event_dto.event_type,
+        type=event_dto.type,
+        level_up_type=event_dto.level_up_type,
+        ward_type=event_dto.ward_type,
+        tower_type=event_dto.tower_type,
+        item_id=event_dto.item_id,
+        before_id=event_dto.before_id,
+        monster_type=event_dto.monster_type,
+        monster_sub_type=event_dto.monster_sub_type,
+        position=f'{event_dto.position.x},{event_dto.position.y}' if event_dto.position else None,
+        killer_id=event_dto.killer_id,
+        assisting_participant_ids=event_dto.assisting_participant_ids,
+        building_type=event_dto.building_type,
+        victim_id=event_dto.victim_id,
+    )
+
+
+def parse_participant_frame(participant_frame_dto: match_timeline.MatchParticipantFrameDto,
+                            participant_id: str,
+                            timestamp: int) -> model.ParticipantFrame:
+    return model.ParticipantFrame(
+        participant_id=participant_id,
+        timestamp=timestamp,
+        minions_killed=participant_frame_dto.minions_killed,
+        team_score=participant_frame_dto.team_score,
+        total_gold=participant_frame_dto.total_gold,
+        level=participant_frame_dto.level,
+        xp=participant_frame_dto.xp,
+        current_gold=participant_frame_dto.current_gold,
+        position=f'{participant_frame_dto.position.x},{participant_frame_dto.position.y}' if participant_frame_dto.position else None,
+        jungle_minions_killed=participant_frame_dto.jungle_minions_killed,
+    )
