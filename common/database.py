@@ -4,7 +4,7 @@ import os
 import psycopg2
 import typing
 
-from common import model
+import model
 
 
 # database general
@@ -99,7 +99,7 @@ def insert_summoner(conn,
                     summoner: model.Summoner,
                     ):
     statement = "INSERT INTO summoners " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, now())"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
 
     summoner = _set_timestamp(summoner)
     values = dataclasses.astuple(summoner)
@@ -118,14 +118,14 @@ def insert_match(conn,
                  match: model.Match,
                  ):
     statement = "INSERT INTO matches " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s,)"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     values = dataclasses.astuple(match)
 
     _execute(
         conn=conn,
         statement=statement,
         values=values,
-        print_exception=False,
+        print_exception=True,
     )
 
     conn.commit()
@@ -137,12 +137,11 @@ def insert_summoner_match(conn,
     statement = "INSERT INTO summoner_matches " \
                 "VALUES (%s, %s)"
     values = dataclasses.astuple(summoner_match)
-
     _execute(
         conn=conn,
         statement=statement,
         values=values,
-        print_exception=False,
+        print_exception=True,
     )
 
     conn.commit()
@@ -213,9 +212,14 @@ def insert_stat(conn,
                 stat: model.Stat
                 ):
     statement = "INSERT INTO stats " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                "VALUES (" \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     values = dataclasses.astuple(stat)
-
     _execute(
         conn=conn,
         statement=statement,
@@ -243,6 +247,38 @@ def insert_participant(conn,
 
     conn.commit()
 
+
+def insert_event(conn, event: model.Event):
+    statement = "INSERT INTO events " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+    values = dataclasses.astuple(event)
+
+    _execute(
+        conn=conn,
+        statement=statement,
+        values=values,
+        print_exception=True,
+    )
+
+    conn.commit()
+
+
+def insert_participant_frame(conn, participant_frame: model.ParticipantFrame):
+    statement = "INSERT INTO participant_frame " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+    values = dataclasses.astuple(participant_frame)
+
+    _execute(
+        conn=conn,
+        statement=statement,
+        values=values,
+        print_exception=True,
+    )
+
+    conn.commit()
 
 # select statements
 #####################################################################################################
