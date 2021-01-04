@@ -234,7 +234,7 @@ def insert_participant(conn,
                        participant: model.Participant
                        ):
     statement = "INSERT INTO participants " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     values = dataclasses.astuple(participant)
 
