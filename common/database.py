@@ -469,11 +469,53 @@ def select_participant_from_stat(conn, stat: model.Stat):
         game_id=participant[1],
         account_id=participant[2],
         champion_id=participant[3],
-        timeline_id=participant[4],
-        stat_id=participant[5],
-        team_id=participant[6],
-        spell1_id=participant[7],
-        spell2_id=participant[8],
-        role=participant[9],
-        lane=participant[10]
+        stat_id=participant[4],
+        timeline_id=participant[5],
+        spell1_id=participant[6],
+        spell2_id=participant[7],
+        role=participant[8],
+        lane=participant[9]
+    )
+
+
+def select_common_games(conn, s1: model.Summoner, s2: model.Summoner):
+    statement = "SELECT DISTINCT s1.gameid, s1.accountid, p1.participantid, p1.statid, " \
+                "s2.accountid, p2.participantid, p2.statid from summoner_matches s1 " \
+                "JOIN summoner_matches s2 ON s1.gameid = s2.gameid " \
+                "JOIN participants p1 ON p1.accountid = s1.accountid AND p1.gameid = s1.gameid " \
+                "JOIN participants p2 ON p2.accountid = s2.accountid AND p2.gameid = s2.gameid " \
+                "WHERE s1.accountid = %s AND s2.accountid = %s"
+    values = (s1.account_id, s2.account_id)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values,
+    )
+
+    return cur.fetchall()
+
+
+def select_participant(conn, participant_id: str):
+    statement = "SELECT * FROM participants p WHERE p.participantid = %s"
+    values = (participant_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+    participant = cur.fetchone()
+
+    return model.Participant(
+        participant_id=participant[0],
+        game_id=participant[1],
+        account_id=participant[2],
+        champion_id=participant[3],
+        stat_id=participant[4],
+        timeline_id=participant[5],
+        spell1_id=participant[6],
+        spell2_id=participant[7],
+        role=participant[8],
+        lane=participant[9]
     )

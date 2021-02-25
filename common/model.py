@@ -169,7 +169,6 @@ class Participant:
     account_id: str
     champion_id: int
     stat_id: str
-    team_id: int
     timeline_id: str
     spell1_id: int
     spell2_id: int
