@@ -2,6 +2,7 @@ import dataclasses
 import json
 import os
 import psycopg2
+import psycopg2.extras
 import typing
 
 import model
@@ -66,7 +67,7 @@ def _execute(
     :param print_exception:
     :return:
     """
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     try:
         cur.execute(statement, values)
     except psycopg2.Error as e:
@@ -237,6 +238,7 @@ def insert_participant(conn,
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     values = dataclasses.astuple(participant)
+    print(values)
 
     _execute(
         conn=conn,
@@ -479,12 +481,12 @@ def select_participant_from_stat(conn, stat: model.Stat):
 
 
 def select_common_games(conn, s1: model.Summoner, s2: model.Summoner):
-    statement = "SELECT DISTINCT s1.gameid, s1.accountid, p1.participantid, p1.statid, " \
-                "s2.accountid, p2.participantid, p2.statid from summoner_matches s1 " \
+    statement = "SELECT DISTINCT s1.gameid, s1.accountid s1_accountid, p1.participantid s1_participantid, p1.statid s1_statid, p1.teamid s1_teamid, " \
+                "s2.accountid s2_accountid, p2.participantid s2_participantid, p2.statid s2_statid, p2.teamid s2_teamid from summoner_matches s1 " \
                 "JOIN summoner_matches s2 ON s1.gameid = s2.gameid " \
                 "JOIN participants p1 ON p1.accountid = s1.accountid AND p1.gameid = s1.gameid " \
                 "JOIN participants p2 ON p2.accountid = s2.accountid AND p2.gameid = s2.gameid " \
-                "WHERE s1.accountid = %s AND s2.accountid = %s"
+                "WHERE s1.accountid = %s AND s2.accountid = %s AND p1.teamid = p2.teamid"
     values = (s1.account_id, s2.account_id)
 
     cur = _execute(
@@ -508,14 +510,126 @@ def select_participant(conn, participant_id: str):
     participant = cur.fetchone()
 
     return model.Participant(
-        participant_id=participant[0],
-        game_id=participant[1],
-        account_id=participant[2],
-        champion_id=participant[3],
-        stat_id=participant[4],
-        timeline_id=participant[5],
-        spell1_id=participant[6],
-        spell2_id=participant[7],
-        role=participant[8],
-        lane=participant[9]
+        participant_id=participant["participantid"],
+        game_id=participant["gameid"],
+        account_id=participant["accountid"],
+        champion_id=participant["championid"],
+        stat_id=participant["statid"],
+        team_id=participant["teamid"],
+        timeline_id=participant["timelineid"],
+        spell1_id=participant["spell1id"],
+        spell2_id=participant["spell2id"],
+        role=participant["role"],
+        lane=participant["lane"]
     )
+
+
+def select_participant_frames(conn, participant_id: str):
+    statement = "SELECT * FROM participant_frame p WHERE p.participantid = %s"
+    values = (participant_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    return cur.fetchall()
+
+def select_participant_gold(conn, participant_id: str):
+    statement = "SELECT totalgold FROM participant_frame p WHERE p.participantid = %s"
+    values = (participant_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    return cur.fetchall()
+
+
+def select_opponent(conn, participant_id: str, game_id: str, position: (str, str)) -> model.Participant:
+    statement = "SELECT * FROM participants p WHERE p.gameid = %s AND p.lane = %s AND p.role = %s AND p.participantid <> %s"
+    values = (game_id, position[0], position[1], participant_id)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    opponent = cur.fetchone()
+
+    if opponent is None:
+        return None
+    return model.Participant(
+        participant_id=opponent["participantid"],
+        game_id=opponent["gameid"],
+        account_id=opponent["accountid"],
+        champion_id=opponent["championid"],
+        stat_id=opponent["statid"],
+        team_id=opponent["teamid"],
+        timeline_id=opponent["timelineid"],
+        spell1_id=opponent["spell1id"],
+        spell2_id=opponent["spell2id"],
+        role=opponent["role"],
+        lane=opponent["lane"]
+    )
+
+
+def select_positions(conn, participant_id: str):
+    statement = "SELECT p.position FROM participant_frame p WHERE p.participantid = %s"
+    values = (participant_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    return cur.fetchall()
+
+def select_overall_kill_information(conn, game_id: str, team_id: int):
+    statement = "SELECT SUM(s.kills) kills, SUM(s.deaths) deaths, SUM(s.assists) assists FROM stats s " \
+                "JOIN participants p ON p.statid = s.statid " \
+                "WHERE p.gameid = %s AND p.teamid = %s"
+    values = (game_id, team_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    return cur.fetchone()
+
+
+def select_game_events(conn, game_id: str):
+    statement = "SELECT * FROM events e  WHERE e.participantid = %s"
+    values = (participant_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    return cur.fetchall()
+
+
+def select_kill_timeline(conn, game_id: str, team_id: int):
+    statement = "SELECT p.participantid, e.timestamp, e.position, e.killerid killer, e.victimid victim, p.teamid, " \
+                "e.assistingparticipantids FROM events e " \
+                "JOIN participants p ON e.participantid = p.participantid " \
+                "WHERE p.gameid = %s AND type = 'CHAMPION_KILL' AND p.teamid = %s" \
+                "ORDER BY e.timestamp"
+    values = (game_id, team_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    return cur.fetchall()

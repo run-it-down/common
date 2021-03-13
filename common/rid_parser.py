@@ -274,7 +274,7 @@ def parse_participant(participant_dto: match.ParticipantDto,
         spell1_id=participant_dto.spell1_id,
         spell2_id=participant_dto.spell2_id,
         role=role,
-        lane=lane,
+        lane=lane
     )
 
 
@@ -346,6 +346,12 @@ def parse_event(event_dto: match_timeline.MatchEventDto,
             participant_id = 0
     else:
         participant_id = map[event_dto.participant_id]
+
+    assisting_participant_ids = []
+    if event_dto.assisting_participant_ids:
+        for assisting_participant_id in event_dto.assisting_participant_ids:
+            assisting_participant_ids.append(map[assisting_participant_id])
+
     return model.Event(
         participant_id=participant_id,
         timestamp=event_dto.timestamp,
@@ -364,10 +370,10 @@ def parse_event(event_dto: match_timeline.MatchEventDto,
         monster_type=event_dto.monster_type,
         monster_sub_type=event_dto.monster_sub_type,
         position=f'{event_dto.position.x},{event_dto.position.y}' if event_dto.position else None,
-        killer_id=event_dto.killer_id,
-        assisting_participant_ids=event_dto.assisting_participant_ids,
+        killer_id=map[event_dto.killer_id] if event_dto.killer_id else None,
+        assisting_participant_ids=assisting_participant_ids,
         building_type=event_dto.building_type,
-        victim_id=event_dto.victim_id,
+        victim_id=map[event_dto.victim_id] if event_dto.victim_id else None,
     )
 
 
