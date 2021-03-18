@@ -221,3 +221,4 @@ class AnalyseRequest:
     summoner_name: str
     summoner_name_buddy: str
     request_time: str
+    analyse_range: typing.Tuple[int, int]
