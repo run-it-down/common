@@ -214,3 +214,10 @@ class Event:
     assisting_participant_ids: typing.List[str]
     building_type: str
     victim_id: str
+
+
+@dataclasses.dataclass(frozen=True)
+class AnalyseRequest:
+    summoner_name: str
+    summoner_name_buddy: str
+    request_time: str
