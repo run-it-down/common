@@ -2,7 +2,7 @@ import dataclasses
 import typing
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=False)
 class Summoner:
     account_id: str
     summoner_id: str
