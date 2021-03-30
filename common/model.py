@@ -2,7 +2,7 @@ import dataclasses
 import typing
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=False)
 class Summoner:
     account_id: str
     summoner_id: str
@@ -14,7 +14,7 @@ class Summoner:
     timestamp: str
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Match:
     game_id: int
     platform_id: str
@@ -28,13 +28,13 @@ class Match:
     game_type: str
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class SummonerMatch:
     account_id: str
     game_id: int
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Team:
     team_id: int
     game_id: int
@@ -53,14 +53,14 @@ class Team:
     bans: typing.List[int]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Champion:
     champion_id: int
     name: str
     classes: typing.List[str]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Timeline:
     timeline_id: str
     creeps_per_min_deltas: typing.Mapping[str, float]
@@ -72,7 +72,7 @@ class Timeline:
     damage_taken_diff_per_min_deltas: typing.Mapping[str, float]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Stat:
     stat_id: str
     win: bool
@@ -162,7 +162,7 @@ class Stat:
     stat_perk2: int
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Participant:
     participant_id: str
     game_id: int
@@ -177,7 +177,7 @@ class Participant:
     lane: str
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class ParticipantFrame:
     participant_id: str
     timestamp: int
@@ -191,7 +191,7 @@ class ParticipantFrame:
     jungle_minions_killed: int
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class Event:
     participant_id: str
     timestamp: int
@@ -214,3 +214,10 @@ class Event:
     assisting_participant_ids: typing.List[str]
     building_type: str
     victim_id: str
+
+
+@dataclasses.dataclass(frozen=True)
+class AnalyseRequest:
+    summoner_name: str
+    summoner_name_buddy: str
+    request_time: str
