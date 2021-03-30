@@ -481,11 +481,14 @@ def select_participant_from_stat(conn, stat: model.Stat):
 
 
 def select_common_games(conn, s1: model.Summoner, s2: model.Summoner):
-    statement = "SELECT DISTINCT s1.gameid, s1.accountid s1_accountid, p1.participantid s1_participantid, p1.statid s1_statid, p1.teamid s1_teamid, " \
-                "s2.accountid s2_accountid, p2.participantid s2_participantid, p2.statid s2_statid, p2.teamid s2_teamid from summoner_matches s1 " \
+    statement = "SELECT DISTINCT s1.gameid, s1.accountid s1_accountid, p1.participantid s1_participantid, " \
+                "p1.statid s1_statid, p1.teamid s1_teamid, s2.accountid s2_accountid, p2.participantid s2_participantid, " \
+                "p2.statid s2_statid, p2.teamid s2_teamid, p1.role s1_role, p1.lane s1_lane, " \
+                "p2.role s2_role, p2.lane s2_lane, t.win from summoner_matches s1 " \
                 "JOIN summoner_matches s2 ON s1.gameid = s2.gameid " \
                 "JOIN participants p1 ON p1.accountid = s1.accountid AND p1.gameid = s1.gameid " \
                 "JOIN participants p2 ON p2.accountid = s2.accountid AND p2.gameid = s2.gameid " \
+                "JOIN teams t ON t.teamid = p1.teamid AND t.gameid = s1.gameid " \
                 "WHERE s1.accountid = %s AND s2.accountid = %s AND p1.teamid = p2.teamid"
     values = (s1.account_id, s2.account_id)
 
@@ -630,6 +633,80 @@ def select_kill_timeline(conn, game_id: str, team_id: int):
         conn=conn,
         statement=statement,
         values=values
+    )
+
+    return cur.fetchall()
+
+def select_all_kill_timeline(conn, game_id: str):
+    statement = "SELECT p.participantid, e.timestamp, e.position, e.killerid killer, e.victimid victim, p.teamid, " \
+                "e.assistingparticipantids FROM events e " \
+                "JOIN participants p ON e.participantid = p.participantid " \
+                "WHERE p.gameid = %s AND type = 'CHAMPION_KILL'" \
+                "ORDER BY e.timestamp"
+    values = (game_id,)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values
+    )
+
+    return cur.fetchall()
+
+def select_all_participants(conn):
+    statement = "SELECT * FROM stats s JOIN participants p ON s.statid = p.statid"
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=()
+    )
+
+    return cur.fetchall()
+
+def select_all_games(conn):
+    statement = "SELECT DISTINCT s1.gameid, s1.accountid s1_accountid, p1.participantid s1_participantid, " \
+                "p1.statid s1_statid, p1.teamid s1_teamid, p1.role s1_role, p1.lane s1_lane, t.win from summoner_matches s1 " \
+                "JOIN participants p1 ON p1.accountid = s1.accountid AND p1.gameid = s1.gameid " \
+                "JOIN teams t ON t.teamid = p1.teamid AND t.gameid = s1.gameid"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=()
+    )
+
+    return cur.fetchall()
+
+def select_game_frames(conn, game_id:str):
+    statement = "SELECT * FROM participant_frame f " \
+                "JOIN participants p ON p.participantid = f.participantid " \
+                "WHERE p.gameid = %s " \
+                "ORDER BY f.timestamp"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id,)
+    )
+
+    return cur.fetchall()
+
+
+def select_common_game_stats(conn, s1: model.Summoner, s2: model.Summoner):
+    statement = "SELECT DISTINCT s1.gameid, st1.kills s1_kills, st1.deaths s1_deaths, " \
+                "st1.assists s1_assists, st1.totalminionskilled s1_totalminionskilled, p1.role s1_role, p1.lane s1_lane, " \
+                "st2.kills s2_kills, st2.deaths s2_deaths, st2.assists s2_assists, st2.totalminionskilled s2_totalminionskilled, " \
+                "p2.role s2_role, p2.lane s2_lane, t.win from summoner_matches s1 " \
+                "JOIN summoner_matches s2 ON s1.gameid = s2.gameid " \
+                "JOIN participants p1 ON p1.accountid = s1.accountid AND p1.gameid = s1.gameid " \
+                "JOIN participants p2 ON p2.accountid = s2.accountid AND p2.gameid = s2.gameid " \
+                "JOIN teams t ON t.teamid = p1.teamid AND t.gameid = s1.gameid " \
+                "JOIN stats st1 ON st1.statid = p1.statid " \
+                "JOIN stats st2 ON st2.statid = p2.statid " \
+                "WHERE s1.accountid = %s AND s2.accountid = %s AND p1.teamid = p2.teamid"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(s1.account_id, s2.account_id,)
     )
 
     return cur.fetchall()
