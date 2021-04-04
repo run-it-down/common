@@ -710,3 +710,72 @@ def select_common_game_stats(conn, s1: model.Summoner, s2: model.Summoner):
     )
 
     return cur.fetchall()
+
+
+def select_team_gold(conn, game_id: str, team_id):
+    statement = "SELECT SUM(s.goldearned) gold FROM stats s " \
+                "JOIN participants p ON p.statid = s.statid " \
+                "WHERE p.gameid = %s and p.teamid = %s"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id, team_id,)
+    )
+    return cur.fetchall()
+
+
+def select_all_summoners(conn):
+    statement = "SELECT * FROM summoners"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=()
+    )
+    return cur.fetchall()
+
+
+def select_summoner_games(conn, account_id: str):
+    statement = "SELECT s.accountid, p.gameid, t.win FROM participants p " \
+                "JOIN summoners s ON s.accountid = p.accountid " \
+                "JOIN teams t ON t.teamid = p.teamid and t.gameid = p.gameid " \
+                "WHERE s.accountid = %s"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(account_id,)
+    )
+    return cur.fetchall()
+
+
+def select_team_cs(conn, game_id: str, team_id):
+    statement = "SELECT SUM(s.totalminionskilled + s.neutralminionskilledteamjungle + s.neutralminionskilledenemyjungle) cs FROM stats s " \
+                "JOIN participants p ON p.statid = s.statid " \
+                "WHERE p.gameid = %s and p.teamid = %s"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id, team_id,)
+    )
+    return cur.fetchall()
+
+
+def select_participant_team(conn, participant_id: str):
+    statement = "SELECT * FROM participants p WHERE p.participantid = %s"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(participant_id,)
+    )
+    return cur.fetchall()
+
+
+def select_objectives(conn, game_id: str):
+    statement = "SELECT * FROM events e " \
+                "JOIN participants p ON p.participantid = e.participantid " \
+                "WHERE p.gameid = %s and (e.type = 'BUILDING_KILL' or e.type = 'ELITE_MONSTER_KILL')"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id,)
+    )
+    return cur.fetchall()
