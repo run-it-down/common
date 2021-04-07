@@ -779,3 +779,30 @@ def select_objectives(conn, game_id: str):
         values=(game_id,)
     )
     return cur.fetchall()
+
+
+def select_participantid_from_game_and_account(
+    conn,
+    game_id: str,
+    account_id: str,
+):
+    statement = "SELECT * FROM participants p WHERE p.gameid = %S AND p.accountid = %s"
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id, account_id)
+    )
+    return cur.fetchone[0]
+
+
+def select_dragon_kill_from_participant_id(
+    conn,
+    participant_id: str,
+):
+    statement = 'SELECT * FROM events WHERE monstertype = %s and participantid = %s'
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=('DRAGON', participant_id)
+    )
+    return cur.fetchall()
