@@ -183,6 +183,19 @@ def insert_champion(conn,
     conn.commit()
 
 
+def select_champion_name_id(
+    conn,
+    champ_id: str,
+):
+    statement = 'SELECT * FROM champions WHERE championid = %s'
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(champ_id,)
+    )
+    return cur.fetchone()
+
+
 def insert_timeline(conn,
                     timeline: model.Timeline
                     ):
@@ -786,23 +799,52 @@ def select_participantid_from_game_and_account(
     game_id: str,
     account_id: str,
 ):
-    statement = "SELECT * FROM participants p WHERE p.gameid = %S AND p.accountid = %s"
+    statement = "SELECT * FROM participants p WHERE p.gameid = %s AND p.accountid = %s"
     cur = _execute(
         conn=conn,
         statement=statement,
         values=(game_id, account_id)
     )
-    return cur.fetchone[0]
+    return cur.fetchone()[0]
 
 
-def select_dragon_kill_from_participant_id(
+def select_teamid_from_game_and_account(
     conn,
-    participant_id: str,
+    game_id: str,
+    account_id: str,
 ):
-    statement = 'SELECT * FROM events WHERE monstertype = %s and participantid = %s'
+    statement = "SELECT * FROM participants p WHERE p.gameid = %s AND p.accountid = %s"
     cur = _execute(
         conn=conn,
         statement=statement,
-        values=('DRAGON', participant_id)
+        values=(game_id, account_id)
     )
-    return cur.fetchall()
+    return cur.fetchone()[5]
+
+
+def select_team_from_teamid_and_gameid(
+    conn,
+    game_id: str,
+    team_id: str,
+):
+    statement = 'SELECT * FROM teams WHERE gameid = %s and teamid = %s'
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id, team_id)
+    )
+    return cur.fetchone()
+
+
+def select_accountid_in_game(
+    conn,
+    account_id: str,
+    game_id: str,
+):
+    statement = 'SELECT * FROM participants WHERE gameid = %s and accountid = %s'
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id, account_id)
+    )
+    return cur.fetchone()
