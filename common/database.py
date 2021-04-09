@@ -334,6 +334,9 @@ def select_summoner(conn,
     conn.commit()
     res = cur.fetchone()
 
+    if res is None:
+        return None
+
     return model.Summoner(
         account_id=res[0],
         summoner_id=res[1],
