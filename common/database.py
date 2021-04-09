@@ -708,7 +708,7 @@ def select_common_game_stats(conn, s1: model.Summoner, s2: model.Summoner):
     statement = "SELECT DISTINCT s1.gameid, st1.kills s1_kills, st1.deaths s1_deaths, " \
                 "st1.assists s1_assists, st1.totalminionskilled s1_totalminionskilled, p1.role s1_role, p1.lane s1_lane, " \
                 "st2.kills s2_kills, st2.deaths s2_deaths, st2.assists s2_assists, st2.totalminionskilled s2_totalminionskilled, " \
-                "p2.role s2_role, p2.lane s2_lane, t.win from summoner_matches s1 " \
+                "p2.role s2_role, p2.lane s2_lane, t.win, p1.teamid from summoner_matches s1 " \
                 "JOIN summoner_matches s2 ON s1.gameid = s2.gameid " \
                 "JOIN participants p1 ON p1.accountid = s1.accountid AND p1.gameid = s1.gameid " \
                 "JOIN participants p2 ON p2.accountid = s2.accountid AND p2.gameid = s2.gameid " \
