@@ -857,7 +857,7 @@ def select_general_game_info(
     conn,
     game_id: str
 ):
-    statement = 'SELECT * FROM matches m JOIN queue_types qt ON m.queueid = qt.queueid WHERE m.game_id = %s'
+    statement = 'SELECT * FROM matches m JOIN queue_types qt ON m.queueid = qt.queueid WHERE m.gameid = %s'
     cur = _execute(
         conn=conn,
         statement=statement,
