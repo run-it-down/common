@@ -851,3 +851,16 @@ def select_accountid_in_game(
         values=(game_id, account_id)
     )
     return cur.fetchone()
+
+
+def select_general_game_info(
+    conn,
+    game_id: str
+):
+    statement = 'SELECT * FROM matches m WHERE m.game_id = %s JOIN queue_types qt ON m.queueid = qt.queueid'
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id,)
+    )
+    return cur.fetchone()
