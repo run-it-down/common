@@ -331,19 +331,16 @@ def parse_match_timeline_frames(match_timeline: match_timeline.MatchTimelineDto,
     return participant_frames
 
 
-def parse_event(event_dto: match_timeline.MatchEventDto,
-                map: dict) -> model.Event:
-    # There is an edge case for WARD_PLACED and WARD_KILLED. participantId would be NULL in these cases, which is why
-    # we set participantId to the according related ID (either creator or killer). If other edge cases occur, set 0
-    # instead.
+def parse_event(
+    event_dto: match_timeline.MatchEventDto,
+    map: dict,
+) -> model.Event:
     participant_id = event_dto.participant_id
     if participant_id is None:
         if event_dto.creator_id:
             participant_id = map[event_dto.creator_id]
         elif event_dto.killer_id:
             participant_id = map[event_dto.killer_id]
-        else:
-            participant_id = 0
     else:
         participant_id = map[event_dto.participant_id]
 
@@ -369,6 +366,7 @@ def parse_event(event_dto: match_timeline.MatchEventDto,
         before_id=event_dto.before_id,
         monster_type=event_dto.monster_type,
         monster_sub_type=event_dto.monster_sub_type,
+        team_id=event_dto.team_id,
         position=f'{event_dto.position.x},{event_dto.position.y}' if event_dto.position else None,
         killer_id=map[event_dto.killer_id] if event_dto.killer_id else None,
         assisting_participant_ids=assisting_participant_ids,

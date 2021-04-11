@@ -209,6 +209,7 @@ class Event:
     before_id: int
     monster_type: str
     monster_sub_type: str
+    team_id: int
     position: tuple
     killer_id: str
     assisting_participant_ids: typing.List[str]

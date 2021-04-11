@@ -251,7 +251,6 @@ def insert_participant(conn,
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     values = dataclasses.astuple(participant)
-    print(values)
 
     _execute(
         conn=conn,
@@ -264,9 +263,8 @@ def insert_participant(conn,
 
 
 def insert_event(conn, event: model.Event):
-    statement = "INSERT INTO events " \
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    statement = "INSERT INTO events VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     values = dataclasses.astuple(event)
 
@@ -858,6 +856,19 @@ def select_general_game_info(
     game_id: str
 ):
     statement = 'SELECT * FROM matches m JOIN queue_types qt ON m.queueid = qt.queueid WHERE m.gameid = %s'
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=(game_id,)
+    )
+    return cur.fetchone()
+
+
+def select_match_by_gameid(
+    conn,
+    game_id: str,
+):
+    statement = 'SELECT * FROM matches WHERE gameid = %s'
     cur = _execute(
         conn=conn,
         statement=statement,
