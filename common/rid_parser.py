@@ -2,6 +2,7 @@ from datetime import datetime
 import typing
 from uuid import uuid4
 
+import database
 import model
 from dtos import summoner
 from dtos import match
@@ -254,17 +255,25 @@ def parse_participants(match_dto: match.MatchDto,
     return participants
 
 
-def parse_participant(participant_dto: match.ParticipantDto,
-                      game_id: int,
-                      account_id: str,
-                      stat_id: str,
-                      team_id: int,
-                      timeline_id: str,
-                      role: str,
-                      lane: str
-                      ) -> model.Participant:
+def parse_participant(
+    participant_dto: match.ParticipantDto,
+    game_id: int,
+    account_id: str,
+    stat_id: str,
+    team_id: int,
+    timeline_id: str,
+    role: str,
+    lane: str
+) -> model.Participant:
+
+    participant = database.select_participant_from_gameid_accountid(
+        conn=database.get_connection(),
+        game_id=game_id,
+        account_id=account_id,
+    )
+
     return model.Participant(
-        participant_id=str(uuid4()),
+        participant_id=str(uuid4()) if not participant else participant.participant_id,
         game_id=game_id,
         account_id=account_id,
         champion_id=participant_dto.champion_id,

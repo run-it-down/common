@@ -244,6 +244,42 @@ def insert_stat(conn,
     conn.commit()
 
 
+def select_participant_from_gameid_accountid(
+    conn,
+    game_id: int,
+    account_id: str,
+) -> model.Participant:
+    statement = "SELECT * FROM participants " \
+                "WHERE gameid = %s AND accountid = %s"
+    values = (game_id, account_id)
+
+    cur = _execute(
+        conn=conn,
+        statement=statement,
+        values=values,
+    )
+
+    conn.commit()
+    res = cur.fetchone()
+
+    if not res:
+        return None
+
+    return model.Participant(
+        participant_id=res[0],
+        game_id=res[1],
+        account_id=res[2],
+        champion_id=res[3],
+        stat_id=res[4],
+        team_id=res[5],
+        timeline_id=res[6],
+        spell1_id=res[7],
+        spell2_id=res[8],
+        role=res[9],
+        lane=res[10],
+    )
+
+
 def insert_participant(conn,
                        participant: model.Participant
                        ):
