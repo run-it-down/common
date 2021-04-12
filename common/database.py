@@ -138,12 +138,16 @@ def insert_summoner_match(conn,
     statement = "INSERT INTO summoner_matches " \
                 "VALUES (%s, %s)"
     values = dataclasses.astuple(summoner_match)
-    _execute(
-        conn=conn,
-        statement=statement,
-        values=values,
-        print_exception=True,
-    )
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    try:
+        cur.execute(statement, values)
+    except psycopg2.Error as e:
+        print(e)
+        cur.execute("rollback")
+        conn.commit()
+        return None
 
     conn.commit()
 
